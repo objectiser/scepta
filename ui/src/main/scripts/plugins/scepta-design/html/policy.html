@@ -1,0 +1,70 @@
+<div class="row">
+
+  <div class="col-md-12" ng-controller="SceptaDesign.PolicyController">
+    <ol class="breadcrumb">
+      <li><a href="/design">Organizations</a></li>
+      <li><a href="/design/{{organizationName}}">{{organizationName}}</a></li>
+      <li><a href="/design/{{organizationName}}/{{policyGroupName}}">{{policyGroupName}}</a></li>
+      <li class="active">{{policyName}}</li>
+    </ol>
+
+    <h1><b>{{policyName}}</b> <span style="color:grey">Policy</span></h1>
+    <a href="#" editable-textarea="policy.description" e-rows="7" e-cols="120" onaftersave="updatePolicy()">
+        <pre><i>{{ policy.description || 'No description' }}</i></pre>
+    </a>
+
+      <div class="row">
+        <div class="col-sm-8 col-md-9">
+          <ui-codemirror ui-codemirror-opts="editorOptions" ng-model="policyDefinition" ></ui-codemirror>
+        </div>
+        <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <div class="actions pull-right">
+              <button type="button" class="btn btn-default" data-toggle="collapse" href="#addResourceForm" aria-expanded="false" aria-controls="addResourceForm"><span class="pficon pficon-add"></span></button>
+            </div>
+            <h2 class="h5">Resources</h2>
+            <div class="collapse" id="addResourceForm">
+              <div class="well">
+                 <form novalidate class="simple-form">
+                   Name: <input type="text" ng-model="resource.name" /><br />
+                   Description: <input type="description" ng-model="resource.description" /><br />
+                   <input type="button" value="Cancel" data-toggle="collapse" href="#addResourceForm" aria-expanded="false" aria-controls="addResourceForm"/>
+                   <input type="submit" ng-click="addResource(resource)" value="Add" data-toggle="collapse" href="#addResourceForm" aria-expanded="false" aria-controls="addResourceForm"/>
+                 </form>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group">
+            <li ng-repeat="res in policy.resources | orderBy:resourceOrderProp">
+              <h3><a href="/design/{{organizationName}}/{{policyGroupName}}/policy/{{policyName}}/{{res.name}}">{{res.name}}</a> <button type="button" class="btn btn-default" resource="{{res.name}}" ng-click="removeResource($event)"><span class="pficon pficon-delete"></span></button></h3>
+              <p><i>{{res.description}}</i></p>
+            </li>
+          </ul>
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <div class="actions pull-right">
+              <button type="button" class="btn btn-default" data-toggle="collapse" href="#addDependencyForm" aria-expanded="false" aria-controls="addDependencyForm"><span class="pficon pficon-add"></span></button>
+            </div>
+            <h2 class="h5">Dependencies</h2>
+            <div class="collapse" id="addDependencyForm">
+              <div class="well">
+                 <form novalidate class="simple-form">
+                   Group ID: <input type="text" ng-model="dependency.groupId" /><br />
+                   Artifact ID: <input type="text" ng-model="dependency.artifactId" /><br />
+                   Version: <input type="text" ng-model="dependency.version" /><br />
+                   <input type="button" value="Cancel" data-toggle="collapse" href="#addDependencyForm" aria-expanded="false" aria-controls="addDependencyForm"/>
+                   <input type="submit" ng-click="addDependency()" value="Add" data-toggle="collapse" href="#addDependencyForm" aria-expanded="false" aria-controls="addDependencyForm"/>
+                 </form>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group">
+            <li ng-repeat="dep in policy.dependencies | orderBy:dependencyOrderProp">
+              <h3>{{dep.artifactId}} <button type="button" class="btn btn-default" dependency="{{dep}}" ng-click="removeDependency($event)"><span class="pficon pficon-delete"></span></button></h3>
+              <p><i>{{dep.groupId}}</i> [{{dep.version}}]</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+  </div>
+
+</div>
