@@ -3,6 +3,7 @@
 SCEPTA is an open source project for policy authoring, deployment, execution and monitoring.
 
 
+
 == Building from source
 
 The first step is to fork and clone the project. Navigate to the https://github.com/scepta/scepta[project repository] and press the Fork button to create a fork of the project under your own github account. Then create a local clone of your fork using:
