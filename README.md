@@ -1,2 +1,0 @@
-# scepta
-Scepta project.
