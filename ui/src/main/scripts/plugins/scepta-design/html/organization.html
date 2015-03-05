@@ -1,0 +1,30 @@
+<div class="row">
+
+  <div class="col-md-12" ng-controller="SceptaDesign.OrganizationController">
+    <ol class="breadcrumb">
+      <li><a href="/design">Organizations</a></li>
+      <li class="active">{{organizationName}}</li>
+    </ol>
+
+    <h1><b>{{organizationName}}</b> <span style="color:grey">Organization</span></h1>
+
+    <a href="#" editable-textarea="organization.description" e-rows="7" e-cols="120" onaftersave="updateOrganization()">
+        <pre><i>{{ organization.description || 'No description' }}</i></pre>
+    </a>
+
+    <div class="fileUpload btn btn-primary" data-toggle="tooltip" data-placement="right" title="Import a Policy Group">
+      <span class="pficon pficon-import"></span>
+      <input type="file" class="upload" id="policyGroupImportFile" />
+    </div>
+
+    <p></p>
+    <h3>Policy Groups</h3>
+    <ul>
+      <li ng-repeat="pg in policygroups | orderBy:nameOrderProp">
+        <a href="/design/{{organizationName}}/{{pg.name}}">{{pg.name}}</a>
+        <p><i>{{pg.description}}</i></p>
+      </li>
+    </ul>
+
+  </div>
+</div>

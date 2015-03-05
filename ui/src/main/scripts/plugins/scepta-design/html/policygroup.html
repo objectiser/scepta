@@ -1,0 +1,85 @@
+<div class="row">
+
+  <div class="col-md-12" ng-controller="SceptaDesign.PolicyGroupController">
+    <ol class="breadcrumb">
+      <li><a href="/design">Organizations</a></li>
+      <li><a href="/design/{{organizationName}}">{{organizationName}}</a></li>
+      <li class="active">{{policyGroupName}}</li>
+    </ol>
+
+    <h1><b>{{policyGroupName}}</b> <span style="color:grey">Policy Group</span></h1>
+    <a href="#" editable-textarea="policygroup.description" e-rows="7" e-cols="120" onaftersave="updatePolicyGroup()">
+        <pre><i>{{ policygroup.description || 'No description' }}</i></pre>
+    </a>
+
+    <div class="btn btn-primary" data-toggle="tooltip" data-placement="right" title="Export Policy Group" ng-click="exportPolicyGroup()" >
+      <span class="pficon pficon-export"></span>
+    </div>
+
+    <div class="btn btn-primary" data-toggle="tooltip" data-placement="right" title="Build Policy Group" ng-click="buildPolicyGroup()" >
+      <span class="pficon pficon-save"></span>
+    </div>
+
+      <div class="row">
+        <div class="col-sm-8 col-md-9">
+          <p></p>
+          <h3>Policies
+            <button type="button" class="btn btn-default" data-toggle="collapse" href="#addPolicyForm" aria-expanded="false" aria-controls="addPolicyForm"><span class="pficon pficon-add"></span></button></h3>
+          <div class="collapse" id="addPolicyForm">
+            <div class="well">
+               <form novalidate class="simple-form">
+                 Name: <input type="text" ng-model="newPolicy.name" /><br />
+                 Description: <input type="description" ng-model="newPolicy.description" /><br />
+                 <input type="button" value="Cancel" data-toggle="collapse" href="#addPolicyForm" aria-expanded="false" aria-controls="addPolicyForm"/>
+                 <input type="submit" ng-click="addPolicy()" value="Add" data-toggle="collapse" href="#addPolicyForm" aria-expanded="false" aria-controls="addPolicyForm"/>
+               </form>
+            </div>
+          </div>
+          <ul>
+            <li ng-repeat="pol in policies | orderBy:nameOrderProp">
+              <a href="/design/{{organizationName}}/{{policyGroupName}}/policy/{{pol.name}}">{{pol.name}}</a>
+              <p><i>{{pol.description}}</i></p>
+            </li>
+          </ul>
+          <p></p>
+          <p></p>
+          <p></p>
+          <br/>
+          <h3>Tags</h3>
+          <ul>
+            <li ng-repeat="tag in tags">
+              <a ng-click="downloadDeployment()" ng-if="tag.buildStatus == 'Successful'" >{{tag.name}}  <span class="pficon pficon-ok"></span></a>
+              <span ng-if="tag.buildStatus != 'Successful'" >{{tag.name}} <span ng-if="tag.buildStatus == 'Failed'" class="pficon-layered > pficon pficon-error-octagon + pficon pficon-error-exclamation"></span><span ng-if="tag.buildStatus != 'Successful' && tag.buildStatus != 'Failed'" class="pficon-layered > pficon pficon-help"></span></span>
+              <p><i>{{tag.description}}</i></p>
+              <h5>Created by {{tag.createdBy}} on {{tag.createdTimestamp | date:'medium'}}</h5>
+            </li>
+          </ul>
+        </div>
+        <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <div class="actions pull-right">
+              <button type="button" class="btn btn-default" data-toggle="collapse" href="#addEndpointForm" aria-expanded="false" aria-controls="addEndpointForm"><span class="pficon pficon-add"></span></button>
+            </div>
+            <h2 class="h5">Endpoints</h2>
+            <div class="collapse" id="addEndpointForm">
+              <div class="well">
+                 <form novalidate class="simple-form">
+                   Name: <input type="text" ng-model="endpoint.name" /><br />
+                   Description: <input type="description" ng-model="endpoint.description" /><br />
+                   <input type="button" value="Cancel" data-toggle="collapse" href="#addEndpointForm" aria-expanded="false" aria-controls="addEndpointForm"/>
+                   <input type="submit" ng-click="addEndpoint()" value="Add" data-toggle="collapse" href="#addEndpointForm" aria-expanded="false" aria-controls="addEndpointForm"/>
+                 </form>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group">
+            <li ng-repeat="ep in policygroup.endpoints | orderBy:nameOrderProp">
+              <h3><a href="/design/{{organizationName}}/{{policyGroupName}}/endpoint/{{ep.name}}">{{ep.name}}</a> <button type="button" class="btn btn-default" endpoint="{{ep.name}}" ng-click="removeEndpoint($event)"><span class="pficon pficon-delete"></span></button></h3>
+              <p><i>{{ep.description}}</i></p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+  </div>
+</div>

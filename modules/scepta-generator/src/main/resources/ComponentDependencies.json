@@ -1,0 +1,19 @@
+{
+    "dependencies": {
+        "activemq":[{
+            "groupId":"org.apache.activemq",
+            "artifactId":"activemq-camel",
+            "version":"5.10.0"
+        }],
+        "github":[{
+            "groupId":"org.eclipse.mylyn.github",
+            "artifactId":"org.eclipse.egit.github.core",
+            "version":"2.1.5"
+        }],
+        "jira":[{
+            "groupId":"com.atlassian.jira",
+            "artifactId":"jira-rest-java-client",
+            "version":"1.2-m01"
+        }]
+    }
+}
