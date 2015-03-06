@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.hawkular</groupId>
     <artifactId>hawkular-parent</artifactId>
-    <version>9-SNAPSHOT</version>
+    <version>8</version>
   </parent>
 
   <groupId>io.scepta</groupId>
@@ -60,6 +60,7 @@
     <module>modules</module>
     <module>assemblies</module>
     <module>ui</module>
+    <module>distribution</module>
   </modules>
 
   <dependencyManagement>
@@ -108,6 +109,19 @@
         <groupId>io.scepta</groupId>
         <artifactId>scepta-runtime</artifactId>
         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.scepta</groupId>
+        <artifactId>scepta-server</artifactId>
+        <version>${project.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>io.scepta</groupId>
+        <artifactId>scepta-ui</artifactId>
+        <version>${project.version}</version>
+        <type>war</type>
       </dependency>
 
       <!-- Third party dependencies -->
