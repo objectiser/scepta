@@ -1,10 +1,21 @@
 <div class="row">
   <div class="col-md-12" ng-controller="SceptaDesign.OrganizationsController">
-    <h1><span style="color:grey">Organizations</span></h1>
+    <h1><span style="color:grey">Organizations</span> <button type="button" class="btn btn-default" data-toggle="collapse" href="#addOrganizationForm" aria-expanded="false" aria-controls="addOrganizationForm"><span class="pficon pficon-add"></span></button></h1>
+
+    <div class="collapse" id="addOrganizationForm">
+      <div class="well">
+         <form novalidate class="simple-form">
+           Name: <input type="text" ng-model="newOrganization.name" /><br />
+           Description: <input type="description" ng-model="newOrganization.description" /><br />
+           <input type="button" value="Cancel" data-toggle="collapse" href="#addOrganizationForm" aria-expanded="false" aria-controls="addOrganizationForm"/>
+           <input type="submit" ng-click="addOrganization()" value="Add" data-toggle="collapse" href="#addOrganizationForm" aria-expanded="false" aria-controls="addOrganizationForm"/>
+         </form>
+      </div>
+    </div>
 
     <ul>
       <li ng-repeat="org in organizations | orderBy:nameOrderProp">
-        <a href="/design/{{org.name}}">{{org.name}}</a>
+        <a href="/design/{{org.name}}">{{org.name}}</a> <button type="button" class="btn btn-default" organization="{{org.name}}" ng-click="removeOrganization($event)"><span class="pficon pficon-delete"></span></button>
         <p>{{org.description}}</p>
       </li>
     </ul>

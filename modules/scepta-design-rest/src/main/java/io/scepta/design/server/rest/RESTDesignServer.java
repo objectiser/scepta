@@ -59,6 +59,39 @@ public class RESTDesignServer extends AbstractDesignServer {
     }
 
     /**
+     * This method adds an organization.
+     *
+     * @param organization The organization
+     * @return Whether the operation was successful
+     */
+    @POST
+    @Path("/")
+    @Consumes("application/json")
+    public Response addOrganization(Organization organization) {
+
+        getRepository().addOrganization(organization);
+
+        return (success());
+    }
+
+    /**
+     * This method removes the specified organization.
+     *
+     * @param orgName The organization name
+     * @param groupName The policy group name
+     * @param tagName The tag name
+     * @return Whether successful
+     */
+    @DELETE
+    @Path("/{orgName}")
+    public Response removeTag(@PathParam("orgName") String orgName) {
+
+        getRepository().removeOrganization(orgName);
+
+        return (success());
+    }
+
+    /**
      * This method returns the list of available organizations.
      *
      * @return The list of organizations
@@ -99,6 +132,23 @@ public class RESTDesignServer extends AbstractDesignServer {
         getRepository().updateOrganization(organization);
 
         return (success());
+    }
+
+    /**
+     * This method determines the CORS header values for accessing organizations.
+     *
+     * @param servletResponse The servlet response
+     * @return No relevant
+     */
+    @OPTIONS
+    @Path("/")
+    public Response organizationsOptions(@Context HttpServletResponse servletResponse) {
+        servletResponse.addHeader("Allow-Control-Allow-Methods","POST,GET,OPTIONS");
+        servletResponse.addHeader("Access-Control-Allow-Credentials","true");
+        servletResponse.addHeader("Access-Control-Allow-Origin","*");
+        servletResponse.addHeader("Access-Control-Allow-Headers","Content-Type,X-Requested-With");
+        servletResponse.addHeader("Access-Control-Max-Age","60");
+        return (null);
     }
 
     /**

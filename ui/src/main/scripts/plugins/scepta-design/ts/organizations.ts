@@ -24,6 +24,29 @@ module SceptaDesign {
       $scope.organizations = data;
     });
 
+    $scope.addOrganization = function() {
+      $http.post('/scepta-server/design/', $scope.newOrganization)
+        .success(function(data, status, headers, config) {
+        $http.get('/scepta-server/design').success(function(data) {
+          $scope.organizations = data;
+          $scope.newOrganization = new Object();
+        });
+      });
+    };
+
+    $scope.removeOrganization = function(event) {
+      var c = confirm("Are you sure?");
+      if (c == true) {
+        var orgName = event.currentTarget.attributes.getNamedItem('organization').value;
+        $http.delete('/scepta-server/design/'+orgName)
+          .success(function(data, status, headers, config) {
+          $http.get('/scepta-server/design').success(function(data) {
+            $scope.organizations = data;
+          });
+        });
+      } 
+    };
+
     $scope.nameOrderProp = 'name';
 
   }]);
