@@ -15,7 +15,7 @@
 
     <ul>
       <li ng-repeat="org in organizations | orderBy:nameOrderProp">
-        <a href="/design/{{org.name}}">{{org.name}}</a> <button type="button" class="btn btn-default" organization="{{org.name}}" ng-click="removeOrganization($event)"><span class="pficon pficon-delete"></span></button>
+        <h3><a href="/design/{{org.name}}">{{org.name}}</a> <button type="button" class="btn btn-primary btn-xs" organization="{{org.name}}" data-toggle="tooltip" data-placement="right" title="Delete Organization" ng-click="removeOrganization($event)"><span class="pficon pficon-delete"></span></button></h3>
         <p>{{org.description}}</p>
       </li>
     </ul>

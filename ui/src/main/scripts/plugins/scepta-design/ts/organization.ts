@@ -36,6 +36,29 @@ module SceptaDesign {
     $scope.importPolicyGroup = function() {
     };
 
+    $scope.addPolicyGroup = function() {
+      $http.post('/scepta-server/design/'+$scope.organizationName+'/group', $scope.newPolicyGroup)
+        .success(function(data, status, headers, config) {
+        $http.get('/scepta-server/design/'+$scope.organizationName+'/group').success(function(data) {
+          $scope.policygroups = data;
+          $scope.newPolicyGroup = new Object();
+        });
+      });
+    };
+
+    $scope.removePolicyGroup = function(event) {
+      var c = confirm("Are you sure?");
+      if (c == true) {
+        var policyGroupName = event.currentTarget.attributes.getNamedItem('policyGroup').value;
+        $http.delete('/scepta-server/design/'+$scope.organizationName+'/group/'+policyGroupName)
+          .success(function(data, status, headers, config) {
+          $http.get('/scepta-server/design/'+$scope.organizationName+'/group').success(function(data) {
+            $scope.policygroups = data;
+          });
+        });
+      } 
+    };
+
     $scope.nameOrderProp = 'name';
 
     $scope.readSingleFile = function(evt) {
