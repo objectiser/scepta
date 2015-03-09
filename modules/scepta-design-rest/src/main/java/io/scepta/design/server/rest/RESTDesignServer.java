@@ -84,7 +84,7 @@ public class RESTDesignServer extends AbstractDesignServer {
      */
     @DELETE
     @Path("/{orgName}")
-    public Response removeTag(@PathParam("orgName") String orgName) {
+    public Response removeOrganization(@PathParam("orgName") String orgName) {
 
         getRepository().removeOrganization(orgName);
 
@@ -221,6 +221,41 @@ public class RESTDesignServer extends AbstractDesignServer {
         servletResponse.addHeader("Access-Control-Allow-Headers","Content-Type,X-Requested-With");
         servletResponse.addHeader("Access-Control-Max-Age","60");
         return (null);
+    }
+
+    /**
+     * This method adds a policy group.
+     *
+     * @param orgName The organization name
+     * @param policyGroup The policy group
+     * @return Whether successful
+     */
+    @POST
+    @Path("/{orgName}/group")
+    @Consumes("application/json")
+    public Response addPolicyGroup(@PathParam("orgName") String orgName,
+                            PolicyGroup policyGroup) {
+
+        getRepository().addPolicyGroup(orgName, policyGroup);
+
+        return (success());
+    }
+
+    /**
+     * This method removes the specified policy group.
+     *
+     * @param orgName The organization name
+     * @param groupName The policy group name
+     * @return Whether successful
+     */
+    @DELETE
+    @Path("/{orgName}/group/{groupName}")
+    public Response removePolicyGroup(@PathParam("orgName") String orgName,
+                    @PathParam("groupName") String groupName) {
+
+        getRepository().removePolicyGroup(orgName, groupName);
+
+        return (success());
     }
 
     /**

@@ -418,7 +418,7 @@ public class CassandraDesignRepository extends AbstractDesignRepository {
             for (Policy p : doGetPolicies(org, group, MASTER_TAG)) {
                 doRemovePolicy(org, group, p.getName());
             }
-            _session.execute(new BoundStatement(_removePolicyGroup).bind(org, group));
+            _session.execute(new BoundStatement(_removePolicyGroup).bind(org, group, MASTER_TAG));
         } catch (Exception e) {
             // TODO: Handle exception
             e.printStackTrace();

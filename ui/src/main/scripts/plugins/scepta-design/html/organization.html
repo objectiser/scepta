@@ -18,10 +18,22 @@
     </div>
 
     <p></p>
-    <h3>Policy Groups</h3>
+    <h3>Policy Groups <button type="button" class="btn btn-default" data-toggle="collapse" href="#addPolicyGroupForm" aria-expanded="false" aria-controls="addPolicyGroupForm"><span class="pficon pficon-add"></span></button></h3>
+
+    <div class="collapse" id="addPolicyGroupForm">
+      <div class="well">
+         <form novalidate class="simple-form">
+           Name: <input type="text" ng-model="newPolicyGroup.name" /><br />
+           Description: <input type="description" ng-model="newPolicyGroup.description" /><br />
+           <input type="button" value="Cancel" data-toggle="collapse" href="#addPolicyGroupForm" aria-expanded="false" aria-controls="addPolicyGroupForm"/>
+           <input type="submit" ng-click="addPolicyGroup()" value="Add" data-toggle="collapse" href="#addPolicyGroupForm" aria-expanded="false" aria-controls="addPolicyGroupForm"/>
+         </form>
+      </div>
+    </div>
+
     <ul>
       <li ng-repeat="pg in policygroups | orderBy:nameOrderProp">
-        <a href="/design/{{organizationName}}/{{pg.name}}">{{pg.name}}</a>
+        <h3><a href="/design/{{organizationName}}/{{pg.name}}">{{pg.name}}</a> <button type="button" class="btn btn-primary btn-xs" policyGroup="{{pg.name}}" data-toggle="tooltip" data-placement="right" title="Delete Policy Group" ng-click="removePolicyGroup($event)"><span class="pficon pficon-delete"></span></button></h3>
         <p><i>{{pg.description}}</i></p>
       </li>
     </ul>
