@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DefaultGeneratorTest {
 
+    private static final String OTHER_PARAM = "?other=param";
     private static final String TO_ELEMENT = "to";
     private static final String FROM_ELEMENT = "from";
     private static final String ACTIVEMQ_QUEUE_TEST = "activemq:queue:test";
@@ -71,6 +72,32 @@ public class DefaultGeneratorTest {
             assertNotNull(newuri);
 
             assertEquals(ACTIVEMQ_QUEUE_TEST+"?op1=val1&op2=val2", newuri);
+        } catch (Exception e) {
+            fail("Failed to process endpoint uri: "+e);
+        }
+    }
+
+    @Test
+    public void testProcessEndpointURIConsumerWithSceptaQueryString() {
+        String uri=PolicyDefinitionUtil.SCEPTA_PREFIX+TEST_ENDPOINT+OTHER_PARAM;
+
+        PolicyGroup group=new PolicyGroup();
+
+        Endpoint endpoint=new Endpoint()
+                .setName(TEST_ENDPOINT)
+                .setURI(ACTIVEMQ_QUEUE_TEST);
+
+        endpoint.getConsumerOptions().put("op1", "val1");
+        endpoint.getConsumerOptions().put("op2", "val2");
+
+        group.getEndpoints().add(endpoint);
+
+        try {
+            String newuri=DefaultGenerator.processEndpointURI(group, FROM_ELEMENT, uri);
+
+            assertNotNull(newuri);
+
+            assertEquals(ACTIVEMQ_QUEUE_TEST+OTHER_PARAM+"&op1=val1&op2=val2", newuri);
         } catch (Exception e) {
             fail("Failed to process endpoint uri: "+e);
         }

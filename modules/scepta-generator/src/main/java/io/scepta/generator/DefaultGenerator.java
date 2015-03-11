@@ -26,6 +26,7 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import io.scepta.generator.dependency.ConfiguredDependencyResolver;
 import io.scepta.model.Characteristic;
 import io.scepta.model.Dependency;
 import io.scepta.model.Endpoint;
@@ -49,6 +50,9 @@ public class DefaultGenerator implements Generator {
 
     private static final java.util.Set<Dependency> SPRING_DEPENDENCIES=new java.util.HashSet<Dependency>();
 
+    private static final String CAMEL_CONTEXT_HEADER;
+    private static final String CAMEL_CONTEXT_FOOTER;
+
     static {
         // TODO: Find way to retrieve Spring version
         SPRING_DEPENDENCIES.add(new Dependency()
@@ -58,13 +62,65 @@ public class DefaultGenerator implements Generator {
         SPRING_DEPENDENCIES.add(new Dependency()
                 .setGroupId("org.apache.camel")
                 .setArtifactId("camel-spring")
-                .setVersion("2.15-SNAPSHOT"));
+                .setVersion("2.16-SNAPSHOT"));
 
         // TODO: See if possible to identify dependencies based on camel xml element names
         SPRING_DEPENDENCIES.add(new Dependency()
                 .setGroupId("org.apache.camel")
                 .setArtifactId("camel-jsonpath")
-                .setVersion("2.15-SNAPSHOT"));
+                .setVersion("2.16-SNAPSHOT"));
+        SPRING_DEPENDENCIES.add(new Dependency()
+                .setGroupId("org.apache.camel")
+                .setArtifactId("camel-mvel")
+                .setVersion("2.16-SNAPSHOT"));
+
+        // Load header and footer definitions
+        java.io.InputStream is=ConfiguredDependencyResolver.class.getResourceAsStream("/CamelContextHeader");
+
+        String header=null;
+        try {
+            byte[] b=new byte[is.available()];
+            is.read(b);
+
+            header = new String(b);
+
+        } catch (Exception e) {
+            // TODO: ERROR
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (Exception e) {
+                // TODO: REPORT ERROR
+                e.printStackTrace();
+            }
+        }
+
+        CAMEL_CONTEXT_HEADER = header;
+
+        is = ConfiguredDependencyResolver.class.getResourceAsStream("/CamelContextFooter");
+
+        String footer = null;
+
+        try {
+            byte[] b=new byte[is.available()];
+            is.read(b);
+
+            footer = new String(b);
+
+        } catch (Exception e) {
+            // TODO: ERROR
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (Exception e) {
+                // TODO: REPORT ERROR
+                e.printStackTrace();
+            }
+        }
+
+        CAMEL_CONTEXT_FOOTER = footer;
     }
 
     @Override
@@ -170,6 +226,9 @@ public class DefaultGenerator implements Generator {
                         String policyDefn, WebArchive war) {
         String ret=null;
 
+        // Add header and footer to policy definition
+        policyDefn = getPolicyDefinitionHeader()+policyDefn+getPolicyDefinitionFooter();
+
         // Scan for 'from', 'inOnly' and 'to' elements - if 'scepta' prefix, then locate
         // endpoint definition - then apply actual uri, as well as relevant consumer/producer
         // options and process characteristics
@@ -258,6 +317,14 @@ public class DefaultGenerator implements Generator {
         return (ret);
     }
 
+    protected static String getPolicyDefinitionHeader() {
+        return (CAMEL_CONTEXT_HEADER);
+    }
+
+    protected static String getPolicyDefinitionFooter() {
+        return (CAMEL_CONTEXT_FOOTER);
+    }
+
     /**
      * This method processes the endpoint. If the element represents a SCEPTA endpoint,
      * then it will be configured with the actual physical URI and any relevant options.
@@ -315,6 +382,9 @@ public class DefaultGenerator implements Generator {
 
                 return (true);
             }
+        } else {
+            // Add dependencies related to the physical URI specified
+            addDependencies(war, DependencyResolverManager.getDependencies(uri));
         }
 
         return (false);
@@ -349,6 +419,18 @@ public class DefaultGenerator implements Generator {
             newuri = endpoint.getURI();
 
             boolean firstOption=(newuri.indexOf('?') == -1);
+
+            // Check if policy URI had query parameters
+            String endpointQueryString=PolicyDefinitionUtil.getEndpointQueryString(uri);
+
+            if (endpointQueryString != null) {
+                if (firstOption) {
+                    newuri += '?' + endpointQueryString;
+                    firstOption = false;
+                } else {
+                    newuri += '&' + endpointQueryString;
+                }
+            }
 
             if (PolicyDefinitionUtil.isConsumer(elemName)) {
 

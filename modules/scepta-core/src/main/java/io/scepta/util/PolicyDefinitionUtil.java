@@ -79,4 +79,26 @@ public class PolicyDefinitionUtil {
         return (endpointName);
     }
 
+    /**
+     * This method returns the query string associated with
+     * an endpoint URI.
+     *
+     * @param uri The logical URI
+     * @return The endpoint query string, or null if not found
+     */
+    public static String getEndpointQueryString(String uri) {
+        String queryString=null;
+
+        if (uri != null && uri.startsWith(SCEPTA_PREFIX)) {
+            String endpoint = uri.substring(SCEPTA_PREFIX.length());
+
+            int pos=endpoint.indexOf('?');
+            if (pos != -1) {
+                queryString = endpoint.substring(pos+1);
+            }
+        }
+
+        return (queryString);
+    }
+
 }

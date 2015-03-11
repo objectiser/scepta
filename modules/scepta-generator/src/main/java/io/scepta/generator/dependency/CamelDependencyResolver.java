@@ -31,7 +31,7 @@ import io.scepta.model.Dependency;
 public class CamelDependencyResolver implements DependencyResolver {
 
     // TODO: Obtain camel version
-    private static final String DEFAULT_CAMEL_VERSION = "2.15-SNAPSHOT";
+    private static final String DEFAULT_CAMEL_VERSION = "2.16-SNAPSHOT";
 
     /**
      * {@inheritDoc}

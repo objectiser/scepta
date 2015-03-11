@@ -2,26 +2,14 @@
     "groupDetails":{
         "description":"Monitor a GIT repository and validate PRs, raising JIRA bug and twitter notification if errors found",
         "endpoints":[{
-            "description":"The jira endpoint",
-            "uri":"jira://newIssue",
-            "characteristics":[],
-            "consumerOptions":{},
-            "producerOptions":{
-                "serverUrl":"https://overlordtester3.atlassian.net",
-                "username":"overlordtester3",
-                "password":".overlord1"
-            },
-            "dependencies":[],
-            "name":"jira"
-        },{
             "description":"Monitor a git PR.",
             "uri":"github://pullRequest",
             "characteristics":[],
             "consumerOptions":{
-                "username":"overlordtester",
-                "password":"overlord1!",
-                "repoOwner":"overlordtester",
-                "repoName":"camel-github-test"
+                "username":"sceptademo",
+                "password":".overlord1",
+                "repoOwner":"sceptademo",
+                "repoName":"scepta-test"
             },
             "producerOptions":{},
             "dependencies":[],
@@ -32,36 +20,36 @@
             "characteristics":[],
             "consumerOptions":{},
             "producerOptions":{
-                "username":"overlordtester",
-                "password":"overlord1!",
-                "repoOwner":"overlordtester",
-                "repoName":"camel-github-test"
+                "username":"sceptademo",
+                "password":".overlord1",
+                "repoOwner":"sceptademo",
+                "repoName":"scepta-test"
             },
             "dependencies":[],
             "name":"gitprclose"
         },{
-            "description":"The twitter account to send notifications.",
-            "uri":"twitter://timeline/user",
+            "description":"Endpoint to change status of a commit on a PR",
+            "uri":"github://pullRequestState",
             "characteristics":[],
             "consumerOptions":{},
             "producerOptions":{
-                "consumerKey":"kRI4P3hZ3UNo0LHNagHZM5EPZ",
-                "consumerSecret":"9QZvAgmxHuzPKXR4hN7UK7f1JMAvsyqQPkKV65nAO8J7YEMYJS",
-                "accessToken":"2795061335-3YlxeRvAptQTnljXcUowxoVXk5n6VXzn70jGKgI",
-                "accessTokenSecret":"r9kQDbUvxYNYd69B9HpfQmWV6nSPSUaUz6UTr0uLWDduS"
+                "username":"sceptademo",
+                "password":".overlord1",
+                "repoOwner":"sceptademo",
+                "repoName":"scepta-test"
             },
             "dependencies":[],
-            "name":"twitter"
+            "name":"gitprstate"
         },{
             "description":"Endpoint to comment on PR.",
             "uri":"github://pullRequestComment",
             "characteristics":[],
             "consumerOptions":{},
             "producerOptions":{
-                "username":"overlordtester",
-                "password":"overlord1!",
-                "repoOwner":"overlordtester",
-                "repoName":"camel-github-test"
+                "username":"sceptademo",
+                "password":".overlord1",
+                "repoOwner":"sceptademo",
+                "repoName":"scepta-test"
             },
             "dependencies":[],
             "name":"gitprcomment"
@@ -75,7 +63,7 @@
         "resources":[]
     }],
     "policyDefinitions":{
-        "ValidatePR":"<?xml version=\"1.0\" encoding=\"UTF-8\"?><beans xmlns=\"http://www.springframework.org/schema/beans\" xmlns:camel=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\">\n\n  <camelContext xmlns=\"http://camel.apache.org/schema/spring\">\n    <route id=\"ValidateWSDL\">\n      <from uri=\"scepta:gitpr\"/>\n      <choice>\n        <when>\n          <simple>${body.title} == 'invalid'</simple>\n          <to uri=\"scepta:gitprclose\"/>\n          <setHeader headerName=\"ProjectKey\">\n            <constant>TEST</constant>       \n          </setHeader>\n          <setHeader headerName=\"IssueTypeId\">\n            <constant>1</constant>       \n          </setHeader>\n          <setHeader headerName=\"IssueSummary\">\n            <simple>INVALID PULL REQUEST: Pull request #${body.number}</simple>\n          </setHeader>\n          <transform>\n            <simple>INVALID PULL REQUEST: Pull request #${body.number} failed validation! ${body.htmlUrl}</simple>\n          </transform>\n          <multicast parallelProcessing=\"true\" >\n            <to uri=\"scepta:gitprcomment\"/>\n            <to uri=\"scepta:twitter\"/>\n            <to uri=\"scepta:jira\"/>\n          </multicast>\n        </when>\n        <otherwise>\n          <transform>\n            <simple>VALID PULL REQUEST: Pull request #${body.number} successful validation! ${body.htmlUrl}</simple>\n          </transform>\n          <to uri=\"scepta:gitprcomment\"/>\n        </otherwise>\n      </choice>\n    </route>\n  </camelContext>\n\n</beans>"
+        "ValidatePR":"<route id=\"ValidatePR\">\n      <from uri=\"scepta:gitpr\"/>\n      <transform>\n            <simple>Validated changes for PR #${body.number}</simple>\n      </transform>\n      <to uri=\"scepta:gitprstate?state=success\"/>\n</route>\n"
     },
     "resourceDefinitions":{}
 }
