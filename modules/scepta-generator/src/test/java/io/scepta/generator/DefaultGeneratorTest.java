@@ -24,7 +24,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import io.scepta.model.Endpoint;
+import io.scepta.model.Policy;
 import io.scepta.model.PolicyGroup;
+import io.scepta.model.Processor;
 import io.scepta.server.GeneratedResult;
 import io.scepta.server.PolicyGroupInterchange;
 import io.scepta.util.DOMUtil;
@@ -39,6 +41,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DefaultGeneratorTest {
 
+    private static final String TEST_PROCESSOR_CLASS = "my.test.Processor";
+    private static final String TEST_PROCESSOR_NAME = "testBean";
     private static final String OTHER_PARAM = "?other=param";
     private static final String TO_ELEMENT = "to";
     private static final String FROM_ELEMENT = "from";
@@ -53,7 +57,7 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIConsumer() {
-        String uri=PolicyDefinitionUtil.SCEPTA_PREFIX+TEST_ENDPOINT;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT;
 
         PolicyGroup group=new PolicyGroup();
 
@@ -79,7 +83,7 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIConsumerWithSceptaQueryString() {
-        String uri=PolicyDefinitionUtil.SCEPTA_PREFIX+TEST_ENDPOINT+OTHER_PARAM;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT+OTHER_PARAM;
 
         PolicyGroup group=new PolicyGroup();
 
@@ -105,7 +109,7 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIConsumerWithExistingOptions() {
-        String uri=PolicyDefinitionUtil.SCEPTA_PREFIX+TEST_ENDPOINT;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT;
 
         PolicyGroup group=new PolicyGroup();
 
@@ -131,7 +135,7 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIProducer() {
-        String uri=PolicyDefinitionUtil.SCEPTA_PREFIX+TEST_ENDPOINT;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT;
 
         PolicyGroup group=new PolicyGroup();
 
@@ -157,7 +161,7 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIProducerWithExistingOptions() {
-        String uri=PolicyDefinitionUtil.SCEPTA_PREFIX+TEST_ENDPOINT;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT;
 
         PolicyGroup group=new PolicyGroup();
 
@@ -246,6 +250,192 @@ public class DefaultGeneratorTest {
         } catch (Exception e) {
             e.printStackTrace();
             fail("Failed to export zip: "+e);
+        }
+    }
+
+    @Test
+    public void testGeneratePolicyDefinitionProcessorOnGroup() {
+        PolicyGroup group=new PolicyGroup();
+        Processor processor=new Processor();
+        processor.setName(TEST_PROCESSOR_NAME);
+        processor.setClassName(TEST_PROCESSOR_CLASS);
+        group.getProcessors().add(processor);
+
+        Endpoint ep=new Endpoint();
+        ep.setName("activityunits");
+        ep.setURI("activemq:queue:activityunits");
+        group.getEndpoints().add(ep);
+
+        Policy policy=new Policy();
+
+        String policyDefn="<route id=\"TestPolicy\">\n      <from uri=\"endpoint:activityunits\"/>\n"
+                + "      <to uri=\"processor:"+TEST_PROCESSOR_NAME+"\"/>\n    </route>\n";
+
+        String camelConfig=DefaultGenerator.generatePolicyDefinition(group, policy, policyDefn, null);
+
+        assertNotNull(camelConfig);
+
+        org.w3c.dom.Document doc=null;
+
+        try {
+            doc = DOMUtil.textToDoc(camelConfig);
+        } catch (Exception e) {
+            fail("Failed to parse config: "+e);
+        }
+
+        if (doc != null) {
+
+            // Check for processor URI
+            org.w3c.dom.NodeList tos=doc.getElementsByTagName("to");
+
+            if (tos.getLength() != 1) {
+                fail("Expecting 1 'to': "+tos.getLength());
+            }
+
+            org.w3c.dom.Element to=(org.w3c.dom.Element)tos.item(0);
+
+            assertEquals(to.getAttribute("uri"), TEST_PROCESSOR_NAME);
+
+            // Check for bean definitions
+            org.w3c.dom.NodeList beans=doc.getElementsByTagName("bean");
+
+            if (beans.getLength() != 1) {
+                fail("Expecting 1 bean: "+beans.getLength());
+            }
+
+            org.w3c.dom.Element bean=(org.w3c.dom.Element)beans.item(0);
+
+            assertEquals(bean.getAttribute("id"), TEST_PROCESSOR_NAME);
+            assertEquals(bean.getAttribute("class"), TEST_PROCESSOR_CLASS);
+
+        } else {
+            fail("Could not find camel-config.xml");
+        }
+    }
+
+    @Test
+    public void testGeneratePolicyDefinitionProcessorOnPolicy() {
+        PolicyGroup group=new PolicyGroup();
+
+        Endpoint ep=new Endpoint();
+        ep.setName("activityunits");
+        ep.setURI("activemq:queue:activityunits");
+        group.getEndpoints().add(ep);
+
+        Policy policy=new Policy();
+
+        Processor processor=new Processor();
+        processor.setName(TEST_PROCESSOR_NAME);
+        processor.setClassName(TEST_PROCESSOR_CLASS);
+        policy.getProcessors().add(processor);
+
+        String policyDefn="<route id=\"TestPolicy\">\n      <from uri=\"endpoint:activityunits\"/>\n"
+                + "      <to uri=\"processor:"+TEST_PROCESSOR_NAME+"\"/>\n    </route>\n";
+
+        String camelConfig=DefaultGenerator.generatePolicyDefinition(group, policy, policyDefn, null);
+
+        assertNotNull(camelConfig);
+
+        org.w3c.dom.Document doc=null;
+
+        try {
+            doc = DOMUtil.textToDoc(camelConfig);
+        } catch (Exception e) {
+            fail("Failed to parse config: "+e);
+        }
+
+        if (doc != null) {
+
+            // Check for processor URI
+            org.w3c.dom.NodeList tos=doc.getElementsByTagName("to");
+
+            if (tos.getLength() != 1) {
+                fail("Expecting 1 'to': "+tos.getLength());
+            }
+
+            org.w3c.dom.Element to=(org.w3c.dom.Element)tos.item(0);
+
+            assertEquals(to.getAttribute("uri"), TEST_PROCESSOR_NAME);
+
+            // Check for bean definitions
+            org.w3c.dom.NodeList beans=doc.getElementsByTagName("bean");
+
+            if (beans.getLength() != 1) {
+                fail("Expecting 1 bean: "+beans.getLength());
+            }
+
+            org.w3c.dom.Element bean=(org.w3c.dom.Element)beans.item(0);
+
+            assertEquals(bean.getAttribute("id"), TEST_PROCESSOR_NAME);
+            assertEquals(bean.getAttribute("class"), TEST_PROCESSOR_CLASS);
+
+        } else {
+            fail("Could not find camel-config.xml");
+        }
+    }
+
+    @Test
+    public void testGeneratePolicyDefinitionProcessorOnPolicyDuplicate() {
+        PolicyGroup group=new PolicyGroup();
+
+        Endpoint ep=new Endpoint();
+        ep.setName("activityunits");
+        ep.setURI("activemq:queue:activityunits");
+        group.getEndpoints().add(ep);
+
+        Policy policy=new Policy();
+
+        Processor processor=new Processor();
+        processor.setName(TEST_PROCESSOR_NAME);
+        processor.setClassName(TEST_PROCESSOR_CLASS);
+        policy.getProcessors().add(processor);
+
+        String policyDefn="<route id=\"TestPolicy\">\n      <from uri=\"endpoint:activityunits\"/>\n"
+                + "      <to uri=\"processor:"+TEST_PROCESSOR_NAME+"\"/>\n"
+                + "      <to uri=\"processor:"+TEST_PROCESSOR_NAME+"\"/>\n    </route>\n";
+
+        String camelConfig=DefaultGenerator.generatePolicyDefinition(group, policy, policyDefn, null);
+
+        assertNotNull(camelConfig);
+
+        org.w3c.dom.Document doc=null;
+
+        try {
+            doc = DOMUtil.textToDoc(camelConfig);
+        } catch (Exception e) {
+            fail("Failed to parse config: "+e);
+        }
+
+        if (doc != null) {
+
+            // Check for processor URI - should be 2
+            org.w3c.dom.NodeList tos=doc.getElementsByTagName("to");
+
+            if (tos.getLength() != 2) {
+                fail("Expecting 2 'to': "+tos.getLength());
+            }
+
+            org.w3c.dom.Element to1=(org.w3c.dom.Element)tos.item(0);
+            org.w3c.dom.Element to2=(org.w3c.dom.Element)tos.item(1);
+
+            assertEquals(to1.getAttribute("uri"), TEST_PROCESSOR_NAME);
+            assertEquals(to2.getAttribute("uri"), TEST_PROCESSOR_NAME);
+
+            // Check for bean definitions - should still only be defined once, even
+            // though used twice
+            org.w3c.dom.NodeList beans=doc.getElementsByTagName("bean");
+
+            if (beans.getLength() != 1) {
+                fail("Expecting 1 bean: "+beans.getLength());
+            }
+
+            org.w3c.dom.Element bean=(org.w3c.dom.Element)beans.item(0);
+
+            assertEquals(bean.getAttribute("id"), TEST_PROCESSOR_NAME);
+            assertEquals(bean.getAttribute("class"), TEST_PROCESSOR_CLASS);
+
+        } else {
+            fail("Could not find camel-config.xml");
         }
     }
 

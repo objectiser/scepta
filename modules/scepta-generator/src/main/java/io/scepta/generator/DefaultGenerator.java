@@ -32,6 +32,7 @@ import io.scepta.model.Dependency;
 import io.scepta.model.Endpoint;
 import io.scepta.model.Policy;
 import io.scepta.model.PolicyGroup;
+import io.scepta.model.Processor;
 import io.scepta.model.Resource;
 import io.scepta.server.CharacteristicType;
 import io.scepta.server.GeneratedResult;
@@ -137,7 +138,7 @@ public class DefaultGenerator implements Generator {
             generatePolicyDefinition(group.getGroupDetails(), policy,
                     group.getPolicyDefinitions().get(policy.getName()), war);
 
-            // Process the resources
+            // Process the 'resources'
             for (Resource resource : policy.getResources()) {
                 generateResource(group.getGroupDetails(), policy, resource,
                         group.getResourceDefinitions().get(resource.getName()), war);
@@ -237,62 +238,10 @@ public class DefaultGenerator implements Generator {
             // Convert to DOM representation
             org.w3c.dom.Document doc=DOMUtil.textToDoc(policyDefn);
 
-            // Locate 'from' elements
-            boolean f_changed;
-
-            do {
-                f_changed = false;
-
-                org.w3c.dom.NodeList nl=doc.getElementsByTagName("from");
-
-                for (int i=0; i < nl.getLength(); i++) {
-                    Node node=nl.item(i);
-
-                    if (node instanceof Element) {
-                        f_changed = processEndpoint(group, (Element)node, war);
-
-                        if (f_changed) {
-                            continue;
-                        }
-                    }
-                }
-            } while (f_changed);
-
-            do {
-                f_changed = false;
-
-                org.w3c.dom.NodeList nl=doc.getElementsByTagName("to");
-
-                for (int i=0; i < nl.getLength(); i++) {
-                    Node node=nl.item(i);
-
-                    if (node instanceof Element) {
-                        f_changed = processEndpoint(group, (Element)node, war);
-
-                        if (f_changed) {
-                            continue;
-                        }
-                    }
-                }
-            } while (f_changed);
-
-            do {
-                f_changed = false;
-
-                org.w3c.dom.NodeList nl=doc.getElementsByTagName("inOnly");
-
-                for (int i=0; i < nl.getLength(); i++) {
-                    Node node=nl.item(i);
-
-                    if (node instanceof Element) {
-                        f_changed = processEndpoint(group, (Element)node, war);
-
-                        if (f_changed) {
-                            continue;
-                        }
-                    }
-                }
-            } while (f_changed);
+            // Replace the logical URIs with physical details
+            processFromTo("from", group, policy, doc, war);
+            processFromTo("to", group, policy, doc, war);
+            processFromTo("inOnly", group, policy, doc, war);
 
             // Convert back to text
             ret = DOMUtil.docToText(doc);
@@ -317,6 +266,37 @@ public class DefaultGenerator implements Generator {
         return (ret);
     }
 
+    protected static boolean processFromTo(String elemName, PolicyGroup group, Policy policy, org.w3c.dom.Document doc,
+                            WebArchive war) throws Exception {
+        boolean f_changed=false;
+
+        do {
+            f_changed = false;
+
+            org.w3c.dom.NodeList nl=doc.getElementsByTagName(elemName);
+
+            for (int i=0; i < nl.getLength(); i++) {
+                Node node=nl.item(i);
+
+                if (node instanceof Element) {
+                    String uri=((Element)node).getAttribute("uri");
+
+                    if (PolicyDefinitionUtil.isEndpointURI(uri)) {
+                        f_changed = processEndpoint(uri, group, (Element)node, war);
+                    } else if (PolicyDefinitionUtil.isProcessorURI(uri)) {
+                        f_changed = processProcessor(uri, group, policy, (Element)node, war);
+                    }
+
+                    if (f_changed) {
+                        continue;
+                    }
+                }
+            }
+        } while (f_changed);
+
+        return (f_changed);
+    }
+
     protected static String getPolicyDefinitionHeader() {
         return (CAMEL_CONTEXT_HEADER);
     }
@@ -329,16 +309,15 @@ public class DefaultGenerator implements Generator {
      * This method processes the endpoint. If the element represents a SCEPTA endpoint,
      * then it will be configured with the actual physical URI and any relevant options.
      *
+     * @param uri The URI
      * @param group The policy group
      * @param elem The DOM element representing the input/output element
      * @param war The optional war archive
      * @return Whether this element has been modified
      * @throws Exception Failed to process endpoint
      */
-    protected static boolean processEndpoint(PolicyGroup group, Element elem,
+    protected static boolean processEndpoint(String uri, PolicyGroup group, Element elem,
                             WebArchive war) throws Exception {
-        String uri=elem.getAttribute("uri");
-
         String endpointName=PolicyDefinitionUtil.getEndpointName(uri);
 
         if (endpointName != null) {
@@ -493,6 +472,68 @@ public class DefaultGenerator implements Generator {
 
         // Add resource dependencies
         addDependencies(war, resource.getDependencies());
+    }
+
+    /**
+     * This method processes the 'processor'. If the element represents a SCEPTA processor,
+     * then it will be configured with the actual physical URI with associated dependencies.
+     *
+     * @param uri The URI
+     * @param group The policy group
+     * @param policy The policy
+     * @param elem The DOM element representing the input/output element
+     * @param war The optional war archive
+     * @return Whether this element has been modified
+     * @throws Exception Failed to process processor
+     */
+    protected static boolean processProcessor(String uri, PolicyGroup group, Policy policy, Element elem,
+                            WebArchive war) throws Exception {
+        String processorName=PolicyDefinitionUtil.getProcessorName(uri);
+
+        if (processorName != null) {
+
+            // Locate the processor definition
+            Processor processor=policy.getProcessor(processorName);
+
+            if (processor == null) {
+                processor=group.getProcessor(processorName);
+            }
+
+            if (processor == null) {
+                // TODO: ERROR
+                throw new Exception("Unable to find processor '"+processorName+"'");
+            }
+
+            elem.setAttribute("uri", processorName);
+
+            // Check if bean has already been configured
+            org.w3c.dom.NodeList beans=elem.getOwnerDocument().getDocumentElement().getElementsByTagName("bean");
+            boolean f_found=false;
+
+            for (int i=0; !f_found && i < beans.getLength(); i++) {
+                org.w3c.dom.Element bean=(org.w3c.dom.Element)beans.item(i);
+
+                f_found = bean.getAttribute("id").equals(processorName);
+            }
+
+            if (!f_found) {
+                org.w3c.dom.Element bean=elem.getOwnerDocument().createElement("bean");
+
+                bean.setAttribute("id", processorName);
+                bean.setAttribute("class", processor.getClassName());
+
+                elem.getOwnerDocument().getDocumentElement().appendChild(bean);
+            }
+
+            // Add dependencies
+            if (war != null) {
+                addDependencies(war, processor.getDependencies());
+            }
+
+            return (true);
+        }
+
+        return (false);
     }
 
     /**

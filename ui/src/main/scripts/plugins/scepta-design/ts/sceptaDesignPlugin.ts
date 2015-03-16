@@ -49,13 +49,21 @@ module SceptaDesign {
         templateUrl: 'plugins/scepta-design/html/endpoint.html',
         controller: 'SceptaDesign.EndpointController'
       }).
+      when('/design/:organization/:policygroup/processor/:processor', {
+        templateUrl: 'plugins/scepta-design/html/pg_processor.html',
+        controller: 'SceptaDesign.PGProcessorController'
+      }).
       when('/design/:organization/:policygroup/policy/:policy', {
         templateUrl: 'plugins/scepta-design/html/policy.html',
         controller: 'SceptaDesign.PolicyController'
       }).
-      when('/design/:organization/:policygroup/policy/:policy/:resource', {
+      when('/design/:organization/:policygroup/policy/:policy/resource/:resource', {
         templateUrl: 'plugins/scepta-design/html/resource.html',
         controller: 'SceptaDesign.ResourceController'
+      }).
+      when('/design/:organization/:policygroup/policy/:policy/processor/:processor', {
+        templateUrl: 'plugins/scepta-design/html/pl_processor.html',
+        controller: 'SceptaDesign.PLProcessorController'
       });
 
   }]);

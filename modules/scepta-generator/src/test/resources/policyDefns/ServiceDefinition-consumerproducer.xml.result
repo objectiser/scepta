@@ -19,7 +19,7 @@
 --><beans xmlns="http://www.springframework.org/schema/beans" xmlns:camel="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   <camelContext xmlns="http://camel.apache.org/schema/spring">
     <route id="servicedefn">
-      <from uri="scepta:activityunits"/>
+      <from uri="endpoint:activityunits"/>
   <bean method="init" ref="retrySupport"/>
   <split parallelProcessing="true" strategyRef="aggregatorStrategy">
     <simple>${body}</simple>
@@ -51,7 +51,7 @@
         <setHeader headerName="retryList">
           <simple/>
         </setHeader>
-        <inOnly uri="scepta:activityunits"/>
+        <inOnly uri="endpoint:activityunits"/>
       </filter>
     </pipeline>
     <pipeline>
@@ -63,7 +63,7 @@
         <setHeader headerName="retryCount">
           <simple>0</simple>
         </setHeader>
-        <inOnly uri="scepta:servicedefns"/>
+        <inOnly uri="endpoint:servicedefns"/>
       </filter>
     </pipeline>
   </multicast>
