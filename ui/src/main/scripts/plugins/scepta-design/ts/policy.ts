@@ -46,6 +46,7 @@ module SceptaDesign {
     };
 
     $scope.resourceOrderProp = 'name';
+    $scope.processorOrderProp = 'name';
     $scope.dependencyOrderProp = 'artifactId';
 
     $scope.addResource = function() {
@@ -62,6 +63,26 @@ module SceptaDesign {
           var r=$scope.policy.resources[i];     
           if (r.name === resourceName) {
             $scope.policy.resources.remove(r);
+            $scope.updatePolicy();
+          }
+        }
+      } 
+    };
+
+    $scope.addProcessor = function() {
+      $scope.policy.processors.push($scope.processor);
+      $scope.updatePolicy();
+      $scope.processor = new Object();
+    };
+
+    $scope.removeProcessor = function(event) {
+      var c = confirm("Are you sure?");
+      if (c == true) {
+        var processorName = event.currentTarget.attributes.getNamedItem('processor').value;
+        for (var i = $scope.policy.processors.length - 1; i >= 0; i--) { 
+          var proc=$scope.policy.processors[i];     
+          if (proc.name === processorName) {
+            $scope.policy.processors.remove(proc);
             $scope.updatePolicy();
           }
         }

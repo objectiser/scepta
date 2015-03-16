@@ -32,7 +32,7 @@
       <description>Activities rest service</description>
       <put type="org.overlord.rtgov.activity.model.ActivityUnit" >
         <description>Store activity unit</description>
-        <inOnly uri="scepta:activityunits"/>
+        <inOnly uri="endpoint:activityunits"/>
       </put>
     </rest>
   </camelContext>

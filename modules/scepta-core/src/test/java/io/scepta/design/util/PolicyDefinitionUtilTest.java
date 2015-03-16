@@ -27,8 +27,10 @@ public class PolicyDefinitionUtilTest {
 
     @Test
     public void testGetEndpointName() {
-        assertEquals(PolicyDefinitionUtil.getEndpointName("scepta:test"), TEST_ENDPOINT);
-        assertEquals(PolicyDefinitionUtil.getEndpointName("scepta:test?op1=val1"), TEST_ENDPOINT);
+        assertEquals(PolicyDefinitionUtil.getEndpointName(
+                PolicyDefinitionUtil.ENDPOINT_PREFIX+"test"), TEST_ENDPOINT);
+        assertEquals(PolicyDefinitionUtil.getEndpointName(
+                PolicyDefinitionUtil.ENDPOINT_PREFIX+"test?op1=val1"), TEST_ENDPOINT);
         assertNull(PolicyDefinitionUtil.getEndpointName("jms:test"));
     }
 

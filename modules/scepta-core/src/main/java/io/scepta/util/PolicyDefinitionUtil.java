@@ -22,7 +22,9 @@ package io.scepta.util;
  */
 public class PolicyDefinitionUtil {
 
-    public static final String SCEPTA_PREFIX = "scepta:";
+    public static final String ENDPOINT_PREFIX = "endpoint:";
+
+    public static final String PROCESSOR_PREFIX = "processor:";
 
     /**
      * This method determines whether the supplied element name represents
@@ -58,6 +60,16 @@ public class PolicyDefinitionUtil {
     }
 
     /**
+     * This method determins whether the URI is an endpoint.
+     *
+     * @param uri The logical URI
+     * @return Whether it represents an endpoint
+     */
+    public static boolean isEndpointURI(String uri) {
+        return (uri != null && uri.startsWith(ENDPOINT_PREFIX));
+    }
+
+    /**
      * This method returns the endpoint name related to
      * a supplied logical URI.
      *
@@ -67,8 +79,8 @@ public class PolicyDefinitionUtil {
     public static String getEndpointName(String uri) {
         String endpointName=null;
 
-        if (uri != null && uri.startsWith(SCEPTA_PREFIX)) {
-            endpointName = uri.substring(SCEPTA_PREFIX.length());
+        if (uri != null && uri.startsWith(ENDPOINT_PREFIX)) {
+            endpointName = uri.substring(ENDPOINT_PREFIX.length());
 
             int pos=endpointName.indexOf('?');
             if (pos != -1) {
@@ -89,8 +101,8 @@ public class PolicyDefinitionUtil {
     public static String getEndpointQueryString(String uri) {
         String queryString=null;
 
-        if (uri != null && uri.startsWith(SCEPTA_PREFIX)) {
-            String endpoint = uri.substring(SCEPTA_PREFIX.length());
+        if (uri != null && uri.startsWith(ENDPOINT_PREFIX)) {
+            String endpoint = uri.substring(ENDPOINT_PREFIX.length());
 
             int pos=endpoint.indexOf('?');
             if (pos != -1) {
@@ -99,6 +111,38 @@ public class PolicyDefinitionUtil {
         }
 
         return (queryString);
+    }
+
+    /**
+     * This method determins whether the URI is a processor.
+     *
+     * @param uri The logical URI
+     * @return Whether it represents a processor
+     */
+    public static boolean isProcessorURI(String uri) {
+        return (uri != null && uri.startsWith(PROCESSOR_PREFIX));
+    }
+
+    /**
+     * This method returns the processor name related to
+     * a supplied logical URI.
+     *
+     * @param uri The logical URI
+     * @return The processor name, or null if not found
+     */
+    public static String getProcessorName(String uri) {
+        String processorName=null;
+
+        if (uri != null && uri.startsWith(PROCESSOR_PREFIX)) {
+            processorName = uri.substring(PROCESSOR_PREFIX.length());
+
+            int pos=processorName.indexOf('?');
+            if (pos != -1) {
+                processorName = processorName.substring(0, pos);
+            }
+        }
+
+        return (processorName);
     }
 
 }

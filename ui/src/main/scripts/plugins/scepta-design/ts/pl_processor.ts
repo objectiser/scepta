@@ -18,17 +18,18 @@
 /// <reference path="sceptaDesignPlugin.ts"/>
 module SceptaDesign {
 
-  export var ResourceController = _module.controller("SceptaDesign.ResourceController", ['$scope', '$routeParams', '$http', ($scope, $routeParams, $http) => {
+  export var PLProcessorController = _module.controller("SceptaDesign.PLProcessorController", ['$scope', '$routeParams', '$http', ($scope, $routeParams, $http) => {
     $scope.organizationName = $routeParams.organization;
     $scope.policyGroupName = $routeParams.policygroup;
     $scope.policyName = $routeParams.policy;
-    $scope.resourceName = $routeParams.resource;
+    $scope.processorName = $routeParams.processor;
 
     $http.get('/scepta-server/design/'+$scope.organizationName+'/group/'+$scope.policyGroupName+'/policy/'+$scope.policyName).success(function(data) {
       $scope.policy = data;
-      $scope.policy.resources.forEach(function(res) {
-        if (res.name === $scope.resourceName) {
-          $scope.resource = res;
+      $scope.policy.processors.forEach(function(proc) {
+        if (proc.name === $scope.processorName) {
+          $scope.processor = proc;
+          $scope.reset();
         }
       });
     });
@@ -37,25 +38,10 @@ module SceptaDesign {
       return $http.put('/scepta-server/design/'+$scope.organizationName+'/group/'+$scope.policyGroupName+'/policy/'+$scope.policyName, $scope.policy);
     };
 
-    $http.get('/scepta-server/design/'+$scope.organizationName+'/group/'+$scope.policyGroupName+'/policy/'+$scope.policyName+'/resource/'+$scope.resourceName).success(function(data) {
-      $scope.resourceDefinition = data;
-
-      $scope.$watch("resourceDefinition", function(newValue, oldValue) {
-        return $http.put('/scepta-server/design/'+$scope.organizationName+'/group/'+$scope.policyGroupName+'/policy/'+$scope.policyName+'/resource/'+$scope.resourceName, $scope.resourceDefinition, { "headers": { "Content-Type": "text/plain" } });
-      });
-    });
-
-    $scope.resourceEditorOptions = {
-      lineWrapping : true,
-      lineNumbers: true,
-      mode: 'text'
-    };
-
     $scope.dependencyOrderProp = 'artifactId';
 
     $scope.addDependency = function() {
-      $scope.resource.dependencies.push($scope.dependency);
-      $scope.updatePolicy();
+      $scope.editable.dependencies.push($scope.dependency);
       $scope.dependency = new Object();
     };
 
@@ -63,14 +49,24 @@ module SceptaDesign {
       var c = confirm("Are you sure?");
       if (c == true) {
         var dependency = JSON.parse(event.currentTarget.attributes.getNamedItem('dependency').value);
-        for (var i = $scope.resource.dependencies.length - 1; i >= 0; i--) { 
-          var d=$scope.resource.dependencies[i];     
+        for (var i = $scope.editable.dependencies.length - 1; i >= 0; i--) { 
+          var d=$scope.editable.dependencies[i];     
           if (d.groupId === dependency.groupId && d.artifactId === dependency.artifactId) {
-            $scope.resource.dependencies.remove(d);
-            $scope.updatePolicy();
+            $scope.editable.dependencies.remove(d);
           }
         }
       }
+    };
+
+    $scope.update = function() {
+      $scope.policy.processors.remove($scope.processor);
+      $scope.processor = angular.copy($scope.editable);
+      $scope.policy.processors.push($scope.processor);
+      $scope.updatePolicy();
+    };
+
+    $scope.reset = function() {
+      $scope.editable = angular.copy($scope.processor);
     };
 
   }]);

@@ -25,9 +25,9 @@
          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   <camelContext xmlns="http://camel.apache.org/schema/spring">
     <route id="servicedefn">
-      <from uri="scepta:activityunits"/>
+      <from uri="endpoint:activityunits"/>
       <to uri="serviceDefinitionProcessor"/>
-      <inOnly uri="scepta:servicedefns" />
+      <inOnly uri="endpoint:servicedefns" />
     </route>
   </camelContext>
   <bean id="serviceDefinitionProcessor" class="org.overlord.gov.examples.processor.ServiceDefinitionProcessor"/>

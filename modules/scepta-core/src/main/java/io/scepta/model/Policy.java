@@ -22,6 +22,7 @@ public class Policy {
     private String _description;
     private java.util.Set<Dependency> _dependencies=new java.util.HashSet<Dependency>();
     private java.util.Set<Resource> _resources=new java.util.HashSet<Resource>();
+    private java.util.Set<Processor> _processors=new java.util.HashSet<Processor>();
 
     public String getName() {
         return (_name);
@@ -86,6 +87,31 @@ public class Policy {
             }
         }
 
+        return (null);
+    }
+
+    public java.util.Set<Processor> getProcessors() {
+        return (_processors);
+    }
+
+    public Policy setProcessors(java.util.Set<Processor> processors) {
+        _processors = processors;
+        return (this);
+    }
+
+    /**
+     * This method returns the processor associated with the
+     * supplied name.
+     *
+     * @param name The processor name
+     * @return The processor, or null if not found
+     */
+    public Processor getProcessor(String name) {
+        for (Processor processor : _processors) {
+            if (processor.getName().equals(name)) {
+                return (processor);
+            }
+        }
         return (null);
     }
 }

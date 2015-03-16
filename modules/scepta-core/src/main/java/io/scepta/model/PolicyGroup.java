@@ -21,6 +21,7 @@ public class PolicyGroup {
     private String _name;
     private String _description;
     private java.util.Set<Endpoint> _endpoints=new java.util.HashSet<Endpoint>();
+    private java.util.Set<Processor> _processors=new java.util.HashSet<Processor>();
 
     public String getName() {
         return (_name);
@@ -60,6 +61,31 @@ public class PolicyGroup {
         for (Endpoint endpoint : _endpoints) {
             if (endpoint.getName().equals(name)) {
                 return (endpoint);
+            }
+        }
+        return (null);
+    }
+
+    public java.util.Set<Processor> getProcessors() {
+        return (_processors);
+    }
+
+    public PolicyGroup setProcessors(java.util.Set<Processor> processors) {
+        _processors = processors;
+        return (this);
+    }
+
+    /**
+     * This method returns the processor associated with the
+     * supplied name.
+     *
+     * @param name The processor name
+     * @return The processor, or null if not found
+     */
+    public Processor getProcessor(String name) {
+        for (Processor processor : _processors) {
+            if (processor.getName().equals(name)) {
+                return (processor);
             }
         }
         return (null);

@@ -1,22 +1,37 @@
 <div class="row">
 
-  <div class="col-md-12" ng-controller="SceptaDesign.ResourceController">
+  <div class="col-md-12" ng-controller="SceptaDesign.PLProcessorController">
     <ol class="breadcrumb">
       <li><a href="/design">Organizations</a></li>
       <li><a href="/design/{{organizationName}}">{{organizationName}}</a></li>
       <li><a href="/design/{{organizationName}}/{{policyGroupName}}">{{policyGroupName}}</a></li>
       <li><a href="/design/{{organizationName}}/{{policyGroupName}}/policy/{{policyName}}">{{policyName}}</a></li>
-      <li class="active">{{resourceName}}</li>
+      <li class="active">{{processorName}}</li>
     </ol>
 
-    <h1><b>{{resourceName}}</b> <span style="color:grey">Resource</span></h1>
-    <a href="#" editable-textarea="resource.description" e-rows="7" e-cols="120" onaftersave="updatePolicy()">
-        <pre><i>{{ resource.description || 'No description' }}</i></pre>
+    <h1><b>{{processorName}}</b> <span style="color:grey">Processor</span></h1>
+    <a href="#" editable-textarea="processor.description" e-rows="7" e-cols="120" onaftersave="updatePolicy()">
+        <pre><i>{{ processor.description || 'No description' }}</i></pre>
     </a>
 
       <div class="row">
         <div class="col-sm-8 col-md-9">
-          <ui-codemirror ui-codemirror-opts="resourceEditorOptions" ng-model="resourceDefinition" ></ui-codemirror>
+
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="processor-className">Class Name</label>
+              <div class="col-md-6">
+                <input type="text" id="processor-className" class="form-control" ng-model="editable.className" >
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-10 col-md-offset-2">
+                <button type="button" class="btn btn-primary" ng-click="update()" >Save</button>
+                <button type="button" class="btn btn-default "ng-click="reset()" >Cancel</button>
+              </div>
+            </div>
+          </form>
+
         </div>
         <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
           <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
@@ -37,7 +52,7 @@
             </div>
           </div>
           <ul class="list-group">
-            <li ng-repeat="dep in resource.dependencies | orderBy:dependencyOrderProp">
+            <li ng-repeat="dep in editable.dependencies | orderBy:dependencyOrderProp">
               <h3>{{dep.artifactId}} <button type="button" class="btn btn-default" dependency="{{dep}}" ng-click="removeDependency($event)"><span class="pficon pficon-delete"></span></button></h3>
               <p><i>{{dep.groupId}}</i> [{{dep.version}}]</p>
             </li>

@@ -40,7 +40,7 @@
             <setHeader headerName="retryCount">
               <constant>0</constant>
             </setHeader>
-            <inOnly uri="scepta:activityunits"/>
+            <inOnly uri="endpoint:activityunits"/>
           </aggregate>
         </route>
       </put>

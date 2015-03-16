@@ -82,6 +82,26 @@ module SceptaDesign {
       } 
     };
 
+    $scope.addProcessor = function() {
+      $scope.policygroup.processors.push($scope.processor);
+      $scope.updatePolicyGroup();
+      $scope.processor = new Object();
+    };
+
+    $scope.removeProcessor = function(event) {
+      var c = confirm("Are you sure?");
+      if (c == true) {
+        var processorName = event.currentTarget.attributes.getNamedItem('processor').value;
+        for (var i = $scope.policygroup.processors.length - 1; i >= 0; i--) { 
+          var proc=$scope.policygroup.processors[i];     
+          if (proc.name === processorName) {
+            $scope.policygroup.processors.remove(proc);
+            $scope.updatePolicyGroup();
+          }
+        }
+      } 
+    };
+
   }]);
 
 }

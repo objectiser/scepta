@@ -78,6 +78,29 @@
               <p><i>{{ep.description}}</i></p>
             </li>
           </ul>
+
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <div class="actions pull-right">
+              <button type="button" class="btn btn-default" data-toggle="collapse" href="#addProcessorForm" aria-expanded="false" aria-controls="addProcessorForm"><span class="pficon pficon-add"></span></button>
+            </div>
+            <h2 class="h5">Processors</h2>
+            <div class="collapse" id="addProcessorForm">
+              <div class="well">
+                 <form novalidate class="simple-form">
+                   Name: <input type="text" ng-model="processor.name" /><br />
+                   Description: <input type="description" ng-model="processor.description" /><br />
+                   <input type="button" value="Cancel" data-toggle="collapse" href="#addProcessorForm" aria-expanded="false" aria-controls="addProcessorForm"/>
+                   <input type="submit" ng-click="addProcessor()" value="Add" data-toggle="collapse" href="#addProcessorForm" aria-expanded="false" aria-controls="addProcessorForm"/>
+                 </form>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group">
+            <li ng-repeat="proc in policygroup.processors | orderBy:nameOrderProp">
+              <h3><a href="/design/{{organizationName}}/{{policyGroupName}}/processor/{{proc.name}}">{{proc.name}}</a> <button type="button" class="btn btn-default" processor="{{proc.name}}" ng-click="removeProcessor($event)"><span class="pficon pficon-delete"></span></button></h3>
+              <p><i>{{proc.description}}</i></p>
+            </li>
+          </ul>
         </div>
       </div>
 

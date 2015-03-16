@@ -1,0 +1,45 @@
+{
+    "groupDetails": {
+        "description": "Processor Generation Test",
+        "processors": [
+            {
+                "description": "First processor",
+                "className": "my.test.Processor",
+                "dependencies": [
+                    {
+                        "groupId": "my.test",
+                        "artifactId": "ProcessorArtifact",
+                        "version": "2.1.0.Beta1"
+                    }
+                ],
+                "name": "testBean"
+            }
+        ],
+        "endpoints": [
+            {
+                "description": "Activity Units",
+                "uri": "activemq:queue:activityunits",
+                "characteristics": [],
+                "consumerOptions": {},
+                "producerOptions": {},
+                "dependencies": [],
+                "name": "activityunits"
+            }
+        ],
+        "name": "ProcessorTest"
+    },
+    "policyDetails": [
+        {
+            "description": "The test processor policy",
+            "dependencies": [],
+            "processors": [],
+            "name": "TestProcessorPolicy",
+            "resources": []
+        }
+    ],
+    "policyDefinitions": {
+        "TestProcessorPolicy": "<route id=\"TestPolicy\">\n      <from uri=\"endpoint:activityunits\"/>\n      <to uri=\"processor:testBean\"/>\n    </route>\n"
+    },
+    "resourceDefinitions": {
+    }
+}
