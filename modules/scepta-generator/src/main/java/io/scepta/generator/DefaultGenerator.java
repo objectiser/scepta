@@ -397,21 +397,17 @@ public class DefaultGenerator implements Generator {
 
             newuri = endpoint.getURI();
 
-            boolean firstOption=(newuri.indexOf('?') == -1);
-
             // Check if policy URI had query parameters
-            String endpointQueryString=PolicyDefinitionUtil.getEndpointQueryString(uri);
+            java.util.Map<String,String> endpointQueryParams=
+                        PolicyDefinitionUtil.getEndpointQueryParameters(uri);
 
-            if (endpointQueryString != null) {
-                if (firstOption) {
-                    newuri += '?' + endpointQueryString;
-                    firstOption = false;
-                } else {
-                    newuri += '&' + endpointQueryString;
-                }
-            }
+            // Check if endpoint URI needs to replace parameters
+            newuri = PolicyDefinitionUtil.replaceParameters(newuri, endpointQueryParams);
 
+            // Add consumer or producer options, if defined
             if (PolicyDefinitionUtil.isConsumer(elemName)) {
+
+                boolean firstOption=(newuri.indexOf('?')==-1);
 
                 // Sort the option keys to make the end result reproducible
                 java.util.List<String> list=
@@ -421,12 +417,16 @@ public class DefaultGenerator implements Generator {
                 for (String key : list) {
                     String value=endpoint.getConsumerOptions().get(key);
 
+                    value = PolicyDefinitionUtil.replaceParameters(value, endpointQueryParams);
+
                     newuri += (firstOption?'?':'&') + key + '=' + value;
 
                     firstOption = false;
                 }
 
             } else if (PolicyDefinitionUtil.isProducer(elemName)) {
+
+                boolean firstOption=(newuri.indexOf('?')==-1);
 
                 // Sort the option keys to make the end result reproducible
                 java.util.List<String> list=
@@ -435,6 +435,8 @@ public class DefaultGenerator implements Generator {
 
                 for (String key : list) {
                     String value=endpoint.getProducerOptions().get(key);
+
+                    value = PolicyDefinitionUtil.replaceParameters(value, endpointQueryParams);
 
                     newuri += (firstOption?'?':'&') + key + '=' + value;
 

@@ -92,7 +92,7 @@ public class DefaultGeneratorTest {
                 .setURI(ACTIVEMQ_QUEUE_TEST);
 
         endpoint.getConsumerOptions().put("op1", "val1");
-        endpoint.getConsumerOptions().put("op2", "val2");
+        endpoint.getConsumerOptions().put("op2", "${other}");
 
         group.getEndpoints().add(endpoint);
 
@@ -101,7 +101,7 @@ public class DefaultGeneratorTest {
 
             assertNotNull(newuri);
 
-            assertEquals(ACTIVEMQ_QUEUE_TEST+OTHER_PARAM+"&op1=val1&op2=val2", newuri);
+            assertEquals(ACTIVEMQ_QUEUE_TEST+"?op1=val1&op2=param", newuri);
         } catch (Exception e) {
             fail("Failed to process endpoint uri: "+e);
         }
@@ -109,16 +109,16 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIConsumerWithExistingOptions() {
-        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT+"?existing=value";
 
         PolicyGroup group=new PolicyGroup();
 
         Endpoint endpoint=new Endpoint()
                 .setName(TEST_ENDPOINT)
-                .setURI(ACTIVEMQ_QUEUE_TEST+"?existing=value");
+                .setURI(ACTIVEMQ_QUEUE_TEST);
 
         endpoint.getConsumerOptions().put("op1", "val1");
-        endpoint.getConsumerOptions().put("op2", "val2");
+        endpoint.getConsumerOptions().put("op2", "${existing}");
 
         group.getEndpoints().add(endpoint);
 
@@ -127,7 +127,56 @@ public class DefaultGeneratorTest {
 
             assertNotNull(newuri);
 
-            assertEquals(ACTIVEMQ_QUEUE_TEST+"?existing=value&op1=val1&op2=val2", newuri);
+            assertEquals(ACTIVEMQ_QUEUE_TEST+"?op1=val1&op2=value", newuri);
+        } catch (Exception e) {
+            fail("Failed to process endpoint uri: "+e);
+        }
+    }
+
+    @Test
+    public void testProcessEndpointURIExistingQueryString() {
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT+"?existing=value";
+
+        PolicyGroup group=new PolicyGroup();
+
+        Endpoint endpoint=new Endpoint()
+                .setName(TEST_ENDPOINT)
+                .setURI(ACTIVEMQ_QUEUE_TEST+"?test=value");
+
+        endpoint.getConsumerOptions().put("op1", "val1");
+        endpoint.getConsumerOptions().put("op2", "${existing}");
+
+        group.getEndpoints().add(endpoint);
+
+        try {
+            String newuri=DefaultGenerator.processEndpointURI(group, FROM_ELEMENT, uri);
+
+            assertNotNull(newuri);
+
+            assertEquals(ACTIVEMQ_QUEUE_TEST+"?test=value&op1=val1&op2=value", newuri);
+        } catch (Exception e) {
+            fail("Failed to process endpoint uri: "+e);
+        }
+    }
+
+    @Test
+    public void testProcessEndpointURIWithParameters() {
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT+"?action=send";
+
+        PolicyGroup group=new PolicyGroup();
+
+        Endpoint endpoint=new Endpoint()
+                .setName(TEST_ENDPOINT)
+                .setURI(ACTIVEMQ_QUEUE_TEST+"/${action}");
+
+        group.getEndpoints().add(endpoint);
+
+        try {
+            String newuri=DefaultGenerator.processEndpointURI(group, FROM_ELEMENT, uri);
+
+            assertNotNull(newuri);
+
+            assertEquals(ACTIVEMQ_QUEUE_TEST+"/send", newuri);
         } catch (Exception e) {
             fail("Failed to process endpoint uri: "+e);
         }
@@ -161,15 +210,15 @@ public class DefaultGeneratorTest {
 
     @Test
     public void testProcessEndpointURIProducerWithExistingOptions() {
-        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT;
+        String uri=PolicyDefinitionUtil.ENDPOINT_PREFIX+TEST_ENDPOINT+"?existing=value";
 
         PolicyGroup group=new PolicyGroup();
 
         Endpoint endpoint=new Endpoint()
                 .setName(TEST_ENDPOINT)
-                .setURI(ACTIVEMQ_QUEUE_TEST+"?existing=value");
+                .setURI(ACTIVEMQ_QUEUE_TEST);
 
-        endpoint.getProducerOptions().put("op1", "val1");
+        endpoint.getProducerOptions().put("op1", "${existing}");
         endpoint.getProducerOptions().put("op2", "val2");
 
         group.getEndpoints().add(endpoint);
@@ -179,7 +228,7 @@ public class DefaultGeneratorTest {
 
             assertNotNull(newuri);
 
-            assertEquals(ACTIVEMQ_QUEUE_TEST+"?existing=value&op1=val1&op2=val2", newuri);
+            assertEquals(ACTIVEMQ_QUEUE_TEST+"?op1=value&op2=val2", newuri);
         } catch (Exception e) {
             fail("Failed to process endpoint uri: "+e);
         }
