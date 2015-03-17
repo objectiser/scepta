@@ -92,25 +92,58 @@ public class PolicyDefinitionUtil {
     }
 
     /**
-     * This method returns the query string associated with
+     * This method returns the query parameters associated with
      * an endpoint URI.
      *
      * @param uri The logical URI
-     * @return The endpoint query string, or null if not found
+     * @return The endpoint query parameters
      */
-    public static String getEndpointQueryString(String uri) {
-        String queryString=null;
+    public static java.util.Map<String,String> getEndpointQueryParameters(String uri) {
+        java.util.Map<String,String> ret=new java.util.HashMap<String, String>();
 
         if (uri != null && uri.startsWith(ENDPOINT_PREFIX)) {
             String endpoint = uri.substring(ENDPOINT_PREFIX.length());
 
             int pos=endpoint.indexOf('?');
             if (pos != -1) {
-                queryString = endpoint.substring(pos+1);
+                String parameters=endpoint.substring(pos+1);
+
+                java.util.StringTokenizer st=new java.util.StringTokenizer(parameters, "&");
+
+                while (st.hasMoreTokens()) {
+                    String kvstr=st.nextToken();
+                    String[] kv=kvstr.split("=");
+                    if (kv.length == 2) {
+                        String key=kv[0].trim();
+                        String value=kv[1].trim();
+                        ret.put(key, value);
+                    } else {
+                        // TODO: REPORT ERROR
+                    }
+                }
             }
         }
 
-        return (queryString);
+        return (ret);
+    }
+
+    /**
+     * This method replaces any parameters from a supplied map in the supplied text and
+     * returns the modified version.
+     *
+     * @param text The original text
+     * @param parameters The map of parameters/values
+     * @return The updated text, with available parameters replaced
+     */
+    public static String replaceParameters(String text, java.util.Map<String,String> parameters) {
+
+        for (String key : parameters.keySet()) {
+            String value=parameters.get(key);
+
+            text = text.replaceAll("\\$\\{"+key+"(|.*)?}", value);
+        }
+
+        return (text);
     }
 
     /**
