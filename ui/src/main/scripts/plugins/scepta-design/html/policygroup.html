@@ -37,7 +37,7 @@
           </div>
           <ul>
             <li ng-repeat="pol in policies | orderBy:nameOrderProp">
-              <a href="/design/{{organizationName}}/{{policyGroupName}}/policy/{{pol.name}}">{{pol.name}}</a>
+              <h3><a href="/design/{{organizationName}}/{{policyGroupName}}/policy/{{pol.name}}">{{pol.name}}</a></h3>
               <p><i>{{pol.description}}</i></p>
             </li>
           </ul>
